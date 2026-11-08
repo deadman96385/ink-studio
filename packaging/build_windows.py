@@ -136,6 +136,19 @@ def make_icon(stage):
         shutil.copy2(ROOT/'packaging/windows'/name,directory/name)
 
 
+def verify_compiler_publisher(setup):
+    # PowerShell 7 can pass its module paths through Python to Windows
+    # PowerShell, which then tries to load incompatible versions of Security.
+    # Let Windows PowerShell construct its own default module paths.
+    env={key:value for key,value in os.environ.items() if key.upper()!='PSMODULEPATH'}
+    env['INK_STUDIO_COMPILER_SETUP']=str(setup)
+    signature=run(['powershell.exe','-NoProfile','-NonInteractive','-Command',
+                   '$ErrorActionPreference="Stop"; $s=Get-AuthenticodeSignature -LiteralPath $env:INK_STUDIO_COMPILER_SETUP; if($s.Status -ne "Valid"){exit 1}; $s.SignerCertificate.Subject'],
+                  timeout=60,env=env)
+    if 'Pyrsys B.V.' not in signature:raise ValueError('Unexpected Inno Setup publisher.')
+    return signature
+
+
 def installer_compiler(explicit=None, bootstrap=False, offline=False):
     if explicit:
         result=Path(explicit)
@@ -146,10 +159,7 @@ def installer_compiler(explicit=None, bootstrap=False, offline=False):
     if not bootstrap:
         raise ValueError('Pass --bootstrap-tools, or install Inno Setup 7 and pass --compiler with its ISCC.exe path.')
     setup=download(INNO_URL,INNO_SHA256,CACHE/'innosetup-7.1.1-x64.exe',offline)
-    signature=run(['powershell.exe','-NoProfile','-NonInteractive','-Command',
-                   '$s=Get-AuthenticodeSignature -LiteralPath $env:INK_STUDIO_COMPILER_SETUP; if($s.Status -ne "Valid"){exit 1}; $s.SignerCertificate.Subject'],
-                  timeout=60,env={**os.environ,'INK_STUDIO_COMPILER_SETUP':str(setup)})
-    if 'Pyrsys B.V.' not in signature:raise ValueError('Unexpected Inno Setup publisher.')
+    verify_compiler_publisher(setup)
     run([setup,'/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART','/CURRENTUSER','/NOICONS','/DIR='+str(CACHE/'inno')],timeout=120)
     if not result.is_file():raise ValueError('Inno Setup bootstrap did not install ISCC.exe.')
     return result

@@ -16,6 +16,22 @@ from verify_release import verify
 
 
 class ReleaseTests(unittest.TestCase):
+    def test_compiler_signature_check_resets_inherited_powershell_module_paths(self):
+        setup=Path('compiler path with spaces/setup.exe')
+        with patch.dict(build_windows.os.environ,{'PSModulePath':'incompatible modules','STUDIO_BUILD_SENTINEL':'preserved'}),patch.object(build_windows,'run',return_value='CN=Pyrsys B.V.') as invoke:
+            build_windows.verify_compiler_publisher(setup)
+            child_env=invoke.call_args.kwargs['env']
+            self.assertFalse(any(key.upper()=='PSMODULEPATH' for key in child_env))
+            self.assertEqual(child_env['INK_STUDIO_COMPILER_SETUP'],str(setup))
+            self.assertEqual(child_env['STUDIO_BUILD_SENTINEL'],'preserved')
+            self.assertEqual(build_windows.os.environ['PSModulePath'],'incompatible modules')
+
+    def test_compiler_signature_failures_and_wrong_publishers_are_rejected(self):
+        with patch.object(build_windows,'run',return_value='CN=Unexpected publisher'),self.assertRaisesRegex(ValueError,'publisher'):
+            build_windows.verify_compiler_publisher(Path('setup.exe'))
+        with patch.object(build_windows,'run',side_effect=RuntimeError('Signature validation failed')),self.assertRaisesRegex(RuntimeError,'Signature validation failed'):
+            build_windows.verify_compiler_publisher(Path('setup.exe'))
+
     def fixture(self,folder,extra=None,script='export const ready=true;',version='0.1.1'):
         folder=Path(folder);identity='0'*64
         files={'package.json':json.dumps({'version':version,'sourceSha256':identity}).encode(),
