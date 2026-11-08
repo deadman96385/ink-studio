@@ -17,6 +17,7 @@ PRIVATE_SUFFIXES = ('.project.json', '.pes', '.dst', '.exp', '.jef', '.vp3', '.h
                     '.zip', '.7z', '.bak', '.backup', '.db', '.sqlite', '.sqlite3', '.log', '.pyc',
                     '.pfx', '.p12', '.pem', '.key', '.exe', '.dll', '.pyd')
 BINARY_FILES = frozenset({'packaging/windows/ink-studio.ico', 'packaging/windows/ink-studio.png',
+                          'docs/assets/editor.jpg', 'docs/assets/stitches.jpg', 'docs/assets/print.jpg',
                           'native/test-fixtures/fonts/DejaVuSans-Bold.ttf', 'native/test-fixtures/fonts/SourceSans3-Bold.otf'})
 PRIVATE_DOC_STEMS = frozenset({'release_readiness', 'architecture_diagram', 'motion_plan',
                                'web_port_viability', 'work_map'})
@@ -70,7 +71,7 @@ def inspect_files(files, approved, modes=None, forbidden_values=()):
                 findings.append({'path': name, 'code': category})
         if any(value and value.casefold() in text.casefold() for value in forbidden_values):
             findings.append({'path': name, 'code': 'private-value'})
-        if path.suffix.lower() in ('.png', '.ico', '.ttf', '.otf') and name not in BINARY_FILES:
+        if path.suffix.lower() in ('.png', '.jpg', '.jpeg', '.ico', '.ttf', '.otf') and name not in BINARY_FILES:
             findings.append({'path': name, 'code': 'unreviewed-binary-asset'})
     for name in sorted(approved-set(files)):
         findings.append({'path': name, 'code': 'missing-reviewed-source'})

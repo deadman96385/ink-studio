@@ -22,6 +22,15 @@ class PublicAuditTests(unittest.TestCase):
         files={'README.md': b'Public project', '.github/workflows/checks.yml': b'${{ secrets.SIGNPATH_API_TOKEN }}'}
         self.assertTrue(inspect_files(files, files)['passed'])
 
+    def test_only_reviewed_showcase_screenshots_are_allowed(self):
+        for name in ('docs/assets/editor.jpg', 'docs/assets/stitches.jpg', 'docs/assets/print.jpg'):
+            with self.subTest(name=name):
+                self.assertTrue(inspect_files({name:b'\xff\xd8\xff'},[name])['passed'])
+        for name in ('docs/assets/personal.jpg', 'docs/assets/personal.jpeg', 'docs/assets/personal.png'):
+            with self.subTest(name=name):
+                findings=inspect_files({name:b'\xff\xd8\xff'},[name])['findings']
+                self.assertEqual(findings[0]['code'],'unreviewed-binary-asset')
+
     def test_svg_namespace_allowance_does_not_allow_local_services(self):
         files={'native/effects.py':b'https://inkstudio.local/effects'}
         self.assertTrue(inspect_files(files,files)['passed'])
