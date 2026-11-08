@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<inkscape version="1">
+  <group id="options">
+    <group id="theme" preferDarkTheme="0" />
+    <group id="save" default="/designs" />
+    <group id="save_as" default="/designs" />
+    <group id="save_copy" default="/designs" />
+    <group id="import" path="/designs" />
+    <group id="autosave" enable="1" interval="5" max="20" path="/config/autosave" />
+  </group>
+</inkscape>

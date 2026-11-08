@@ -1,0 +1,177 @@
+[
+  {
+    "name": "brotli",
+    "version": "1.2.1",
+    "filename": "brotli-1.2.1.tar.gz",
+    "url": "https://files.pythonhosted.org/packages/cf/81/1546c983678a9b4e77cb4718eaedd1b2caf24a6cdbf1eb8775938d22aff7/brotli-1.2.1.tar.gz",
+    "sha256": "02b2f7b5a83485efe448a44ddf7983def05c3bb1dcf917d4f7154070260e13de"
+  },
+  {
+    "name": "cffi",
+    "version": "2.1.1",
+    "filename": "cffi-2.1.1.tar.gz",
+    "url": "https://files.pythonhosted.org/packages/9e/ef/008a1939e372c06329a3fce4279c02f328488f3526744906eeec3da7ad5f/cffi-2.1.1.tar.gz",
+    "sha256": "dd31f52ea1086513bb9df30f8fcee9b8918323ae067a3d5b78bc826a000712be"
+  },
+  {
+    "name": "cssselect",
+    "version": "1.3.0",
+    "filename": "cssselect-1.3.0.tar.gz",
+    "url": "https://files.pythonhosted.org/packages/72/0a/c3ea9573b1dc2e151abfe88c7fe0c26d1892fe6ed02d0cdb30f0d57029d5/cssselect-1.3.0.tar.gz",
+    "sha256": "57f8a99424cfab289a1b6a816a43075a4b00948c86b4dcf3ef4ee7e15f7ab0c7"
+  },
+  {
+    "name": "cssselect2",
+    "version": "0.10.1",
+    "filename": "cssselect2-0.10.1.tar.gz",
+    "url": "https://files.pythonhosted.org/packages/06/00/2456b6b664c7a770989cbe3c352aac4eb962c938486f03a2e1255ae963c6/cssselect2-0.10.1.tar.gz",
+    "sha256": "83b0d820ef589dabaf693289b647c2f5b410f76d285f56deba911ffa75a7b9d1"
+  },
+  {
+    "name": "diskcache",
+    "version": "5.6.3",
+    "filename": "diskcache-5.6.3.tar.gz",
+    "url": "https://files.pythonhosted.org/packages/3f/21/1c1ffc1a039ddcc459db43cc108658f32c57d271d7289a2794e401d0fdb6/diskcache-5.6.3.tar.gz",
+    "sha256": "2c3a3fa2743d8535d832ec61c2054a1641f41775aa7c556758a109941e33e4fc"
+  },
+  {
+    "name": "fonttools",
+    "version": "4.68.0",
+    "filename": "fonttools-4.68.0.tar.gz",
+    "url": "https://files.pythonhosted.org/packages/0c/b5/672312ae80ce8b8eb9779c56052a24c8f36652aa7293a1a420553bcf03e5/fonttools-4.68.0.tar.gz",
+    "sha256": "73294e233070f71e2b3653b6bd8564af676d57f26d075761fb06d1ab2e4a7a5d"
+  },
+  {
+    "name": "lxml",
+    "version": "6.0.2",
+    "filename": "lxml-6.0.2.tar.gz",
+    "url": "https://files.pythonhosted.org/packages/aa/88/262177de60548e5a2bfc46ad28232c9e9cbde697bd94132aeb80364675cb/lxml-6.0.2.tar.gz",
+    "sha256": "cd79f3367bd74b317dda655dc8fcfa304d9eb6e4fb06b7168c5cf27f96e0cd62"
+  },
+  {
+    "name": "numpy",
+    "version": "2.4.4",
+    "filename": "numpy-2.4.4.tar.gz",
+    "url": "https://files.pythonhosted.org/packages/d7/9f/b8cef5bffa569759033adda9481211426f12f53299629b410340795c2514/numpy-2.4.4.tar.gz",
+    "sha256": "2d390634c5182175533585cc89f3608a4682ccb173cc9bb940b2881c8d6f8fa0"
+  },
+  {
+    "name": "pillow",
+    "version": "12.2.0",
+    "filename": "pillow-12.2.0.tar.gz",
+    "url": "https://files.pythonhosted.org/packages/8c/21/c2bcdd5906101a30244eaffc1b6e6ce71a31bd0742a01eb89e660ebfac2d/pillow-12.2.0.tar.gz",
+    "sha256": "a830b1a40919539d07806aa58e1b114df53ddd43213d9c8b75847eee6c0182b5"
+  },
+  {
+    "name": "pillow_heif",
+    "version": "1.8.1",
+    "filename": "pillow_heif-1.8.1.tar.gz",
+    "url": "https://files.pythonhosted.org/packages/44/c1/82145984920ca055675af2c2795bd30da6f7461215c41f3c1eacb3d66353/pillow_heif-1.8.1.tar.gz",
+    "sha256": "521ebffb8a181d56c3904e5a61f20903edee0d9d3275967b8fb345f866215c06"
+  },
+  {
+    "name": "pycparser",
+    "version": "3.12",
+    "filename": "pycparser-3.12.tar.gz",
+    "url": "https://files.pythonhosted.org/packages/cb/27/eeb9f307bf07060f3d9f9aa0fb8c15b01bdfded0a941e4b2719c7f94cacd/pycparser-3.12.tar.gz",
+    "sha256": "f03387877eab82ce01bbdfd0ba7252ee55a90b1c708d5129e2ce915475cf1db6"
+  },
+  {
+    "name": "pydyf",
+    "version": "0.13.0",
+    "filename": "pydyf-0.13.0.tar.gz",
+    "url": "https://files.pythonhosted.org/packages/67/1f/3a10f8d2d106bb68330c43a5cd0faf922d1816f65a1581f35015ac654a79/pydyf-0.13.0.tar.gz",
+    "sha256": "3c1bd536c7161d9f472b82a8aaa27d3359a9058ec12de15302d92b3690dae7f5"
+  },
+  {
+    "name": "pypdfium2",
+    "version": "5.5.0",
+    "filename": "pypdfium2-5.5.0.tar.gz",
+    "url": "https://files.pythonhosted.org/packages/fb/f6/42f5f1b9beb7e036f5532832b9c590fd107c52a78f704302c03bc6793954/pypdfium2-5.5.0.tar.gz",
+    "sha256": "3283c61f54c3c546d140da201ef48a51c18b0ad54293091a010029ac13ece23a"
+  },
+  {
+    "name": "pyphen",
+    "version": "0.18.1",
+    "filename": "pyphen-0.18.1.tar.gz",
+    "url": "https://files.pythonhosted.org/packages/94/47/8430452269cd28863d73b903d07d329d058cf762527ff211b3864ba61fc7/pyphen-0.18.1.tar.gz",
+    "sha256": "dbae6fbbe4f01cb206108b43573d857c67107be9d0e38eb1b08d6fa2210634a7"
+  },
+  {
+    "name": "pystitch",
+    "version": "1.0.0",
+    "filename": "pystitch-1.0.0.tar.gz",
+    "url": "https://files.pythonhosted.org/packages/70/3c/7aa9fa013637d20b76d18974d6cda4b0818b90438022498101890c0b6329/pystitch-1.0.0.tar.gz",
+    "sha256": "7c6338d2f8016f0ac3f378b91444927c02b1ce1fa9360d0b9a276b2580a6d9f9"
+  },
+  {
+    "name": "shapely",
+    "version": "2.1.2",
+    "filename": "shapely-2.1.2.tar.gz",
+    "url": "https://files.pythonhosted.org/packages/4d/bc/0989043118a27cccb4e906a46b7565ce36ca7b57f5a18b78f4f1b0f72d9d/shapely-2.1.2.tar.gz",
+    "sha256": "2ed4ecb28320a433db18a5bf029986aa8afcfd740745e78847e330d5d94922a9"
+  },
+  {
+    "name": "tinycss2",
+    "version": "1.4.0",
+    "filename": "tinycss2-1.4.0.tar.gz",
+    "url": "https://files.pythonhosted.org/packages/7a/fd/7a5ee21fd08ff70d3d33a5781c255cbe779659bd03278feb98b19ee550f4/tinycss2-1.4.0.tar.gz",
+    "sha256": "10c0972f6fc0fbee87c3edb76549357415e94548c1ae10ebccdea16fb404a9b7"
+  },
+  {
+    "name": "tinyhtml5",
+    "version": "2.1.0",
+    "filename": "tinyhtml5-2.1.0.tar.gz",
+    "url": "https://files.pythonhosted.org/packages/b1/1f/cfe2f6b30557c92b3f31d41707e09cef5c1efbd87392bc6c0430c46b0e4d/tinyhtml5-2.1.0.tar.gz",
+    "sha256": "60a50ec3d938a37e491efa01af895853060943dcebb5627de5b10d188b338a67"
+  },
+  {
+    "name": "weasyprint",
+    "version": "66.0",
+    "filename": "weasyprint-66.0.tar.gz",
+    "url": "https://files.pythonhosted.org/packages/32/99/480b5430b7eb0916e7d5df1bee7d9508b28b48fee28da894d0a050e0e930/weasyprint-66.0.tar.gz",
+    "sha256": "da71dc87dc129ac9cffdc65e5477e90365ab9dbae45c744014ec1d06303dde40"
+  },
+  {
+    "name": "webencodings",
+    "version": "0.6.1",
+    "filename": "webencodings-0.6.1.tar.gz",
+    "url": "https://files.pythonhosted.org/packages/d5/a0/8fd707bcb776a7be556bad06a2ea5fb9bd519df78ef8e26f70ccf0f38bff/webencodings-0.6.1.tar.gz",
+    "sha256": "565f9ad031c702dae404e27a099e3e09186a3ab1b9520f06d215502b651fd910"
+  },
+  {
+    "name": "zopfli",
+    "version": "0.4.3",
+    "filename": "zopfli-0.4.3.tar.gz",
+    "url": "https://files.pythonhosted.org/packages/74/21/3b6af43a663b22b00e738bb0642931a2579e15da6852613d56c6aa535d28/zopfli-0.4.3.tar.gz",
+    "sha256": "d3a50f91a13cea9bafe025de8fd87a005eb26de02a4f0c193127ddbf23ac8ebe"
+  },
+  {
+    "name": "Python",
+    "version": "3.14.10",
+    "filename": "Python-3.14.10.tgz",
+    "url": "https://www.python.org/ftp/python/3.14.10/Python-3.14.10.tgz",
+    "sha256": "9e4996c19ae5a3df31f10c37723661f71d3455d73bd005f79df7098e5cc13192"
+  },
+  {
+    "name": "libheif",
+    "version": "1.23.6",
+    "filename": "libheif-1.23.6.tar.gz",
+    "url": "https://codeload.github.com/strukturag/libheif/tar.gz/v1.23.6",
+    "sha256": "c9a00b0452f5c16d72ef71e5e40c0e90fbe2ad37148d27a1b2f9bb21546f5f03"
+  },
+  {
+    "name": "libde265",
+    "version": "1.1.3",
+    "filename": "libde265-1.1.3.tar.gz",
+    "url": "https://codeload.github.com/strukturag/libde265/tar.gz/v1.1.3",
+    "sha256": "189baa08fd6d2dd34db099de411bd6b2e6bd5eb88e81236a3d0fa3826b9715c4"
+  },
+  {
+    "name": "x265",
+    "version": "4.3",
+    "filename": "x265-4.3.tar.gz",
+    "url": "https://codeload.github.com/Multicorewareinc/x265/tar.gz/4.3",
+    "sha256": "fb157f809b74dabbef5002af99489fcaebb4d0073724beffdaaf2be15cbaf7ac"
+  }
+]

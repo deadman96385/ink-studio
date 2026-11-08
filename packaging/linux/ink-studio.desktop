@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Ink Studio
+Comment=Embroidery design companion for Inkscape and Ink/Stitch
+Exec=ink-studio --open-browser
+Icon=ink-studio
+Terminal=false
+Categories=Graphics;VectorGraphics;

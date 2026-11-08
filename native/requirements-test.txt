@@ -1,0 +1,2 @@
+# Extra dependencies for Windows PDF text assertions in verify_platform.py.
+pypdf==6.1.1

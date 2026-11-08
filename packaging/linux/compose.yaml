@@ -1,0 +1,21 @@
+name: ink-studio
+services:
+  native:
+    build:
+      context: ./native
+    image: ink-studio-native:local
+    environment:
+      STUDIO_DATA: /designs/native
+    volumes:
+      - ./designs:/designs
+      - ./native:/native:ro
+    ports:
+      - 127.0.0.1:8801:8797
+    init: true
+    restart: unless-stopped
+    shm_size: 256mb
+    healthcheck:
+      test: [CMD, curl, -fsS, http://127.0.0.1:8797/api/health]
+      interval: 30s
+      timeout: 5s
+      retries: 3

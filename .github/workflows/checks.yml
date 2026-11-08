@@ -1,0 +1,45 @@
+name: Checks
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  boundary-and-layout:
+    strategy:
+      matrix:
+        os: [windows-2022, ubuntu-24.04]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.14'
+      - name: Audit reviewed public source
+        run: python packaging/audit_public.py --tracked
+      - run: python -m unittest discover -s packaging -p test_public_audit.py -v
+      - run: python -m unittest discover -s native -p test_http_guard.py -v
+      - run: python -m unittest discover -s native -p test_app_config.py -v
+      - run: python -m unittest discover -s native -p test_setup_check.py -v
+      - run: python -m unittest discover -s native -p test_setup_windows.py -v
+      - run: python -m unittest discover -s packaging -p test_release.py -v
+  windows-preview:
+    needs: boundary-and-layout
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.14'
+      - name: Build without installed embroidery tools
+        shell: pwsh
+        run: ./Build-Studio-Windows.ps1 -Python python -BootstrapTools
+      - name: Audit artifacts
+        run: python packaging/verify_release.py --report dist/verification-summary.json
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ink-studio-unsigned-preview
+          path: dist/*
+          retention-days: 7

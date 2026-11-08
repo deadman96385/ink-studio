@@ -1,0 +1,16 @@
+#!/bin/sh
+# Shared native Linux launcher; install dependencies before launching.
+set -eu
+INK_STUDIO_SCRIPT=$(readlink -f -- "$0")
+INK_STUDIO_ROOT=$(CDPATH= cd -- "$(dirname -- "$INK_STUDIO_SCRIPT")/../.." && pwd)
+INK_STUDIO_HELPER_HASH=$(sha256sum "$INK_STUDIO_ROOT/native/engine_runtime.c" | cut -c1-16)
+export STUDIO_ENGINE_HELPER="${STUDIO_ENGINE_HELPER:-${XDG_CACHE_HOME:-$HOME/.cache}/ink-studio/runtime/engine-$INK_STUDIO_HELPER_HASH}"
+if [ ! -x "$STUDIO_ENGINE_HELPER" ] && command -v cc >/dev/null 2>&1; then
+    # Keep read-only source installations usable, and replace only our helper.
+    # A failed build falls through to the Python check's actionable JSON result.
+    if mkdir -p "$(dirname -- "$STUDIO_ENGINE_HELPER")" &&
+       cc -O2 -Wall -Wextra -o "$STUDIO_ENGINE_HELPER.tmp.$$" "$INK_STUDIO_ROOT/native/engine_runtime.c" -ldl; then
+        mv -- "$STUDIO_ENGINE_HELPER.tmp.$$" "$STUDIO_ENGINE_HELPER"
+    fi
+fi
+exec "${STUDIO_PYTHON:-python3}" -X utf8 "$INK_STUDIO_ROOT/native/launch.py" "$@"

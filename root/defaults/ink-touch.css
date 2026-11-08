@@ -1,0 +1,10 @@
+/* Comfortable targets for Inkscape and Ink/Stitch's GTK-based dialogs. */
+button { min-height: 30px; padding: 6px 10px; }
+entry { min-height: 32px; padding: 5px 8px; }
+combobox button { min-height: 34px; }
+menuitem { min-height: 32px; padding: 6px 12px; }
+checkbutton, radiobutton { min-height: 32px; padding: 4px; }
+checkbutton check, radiobutton radio { min-width: 22px; min-height: 22px; }
+spinbutton button { min-width: 24px; }
+scrollbar slider { min-width: 14px; min-height: 14px; }
+notebook > header tab { min-height: 34px; padding: 4px 14px; }

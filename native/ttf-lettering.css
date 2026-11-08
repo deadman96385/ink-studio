@@ -1,0 +1,14 @@
+.ttf-dialog{width:min(1080px,97vw);max-height:96dvh}
+.ttf-workspace{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:22px;align-items:start}
+.ttf-stage{position:sticky;top:0;min-width:0}.ttf-stage .button-row{display:flex;gap:8px;margin-bottom:10px}
+.ttf-stage button[aria-pressed=true]{background:#e7eee0;border-color:#7d9977}
+#ttfArtwork,#ttfCanvas{display:block;width:100%;height:clamp(260px,42dvh,470px);background:#f6f5ee;border:1px solid #d8dcd2;border-radius:12px}
+#ttfArtwork[hidden],#ttfCanvas[hidden]{display:none}
+#ttfFields{border:0;padding:0;margin:0;min-width:0}
+#ttfFields>label{display:block;margin:0 0 14px}#ttfFields input:not([type=checkbox]),#ttfFields select,#ttfFields textarea{width:100%;min-height:44px;margin-top:5px}
+#ttfFields .field-row{gap:12px}#ttfFields .field-row>label{min-width:0;flex:1}
+#ttfFields .control-section label{display:block;margin:0 0 12px}#ttfFields .control-section label.check{display:flex}
+#ttfFields .control-section{margin:12px 0}#ttfLicenseText{white-space:pre-wrap;max-height:180px;overflow:auto}
+.ttf-warnings{padding-left:20px;color:#865622;font-size:13px;line-height:1.5}
+@media(max-width:850px){.ttf-workspace{grid-template-columns:minmax(0,1fr);gap:16px}.ttf-stage{position:static}#ttfArtwork,#ttfCanvas{height:31dvh;min-height:230px}}
+@media(max-width:480px){.ttf-dialog{padding:16px}#ttfFields .field-row{display:flex;flex-wrap:wrap}#ttfFields .field-row>label{flex:1 1 120px}}

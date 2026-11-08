@@ -1,0 +1,38 @@
+name: Bug report
+description: Report a reproducible Ink Studio problem
+body:
+  - type: markdown
+    attributes:
+      value: "For security issues, follow SECURITY.md. Share a minimal example and reviewed logs; personal designs are optional."
+  - type: input
+    id: version
+    attributes:
+      label: Ink Studio version
+      description: Use About Ink Studio or the release filename.
+    validations:
+      required: true
+  - type: input
+    id: platform
+    attributes:
+      label: Operating system and browser
+    validations:
+      required: true
+  - type: dropdown
+    id: installation
+    attributes:
+      label: Installation type
+      options:
+        - Windows installer
+        - Windows portable
+        - Linux native
+        - Linux container
+  - type: input
+    id: engine
+    attributes:
+      label: Inkscape and Ink/Stitch versions
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps, expected result, and actual result
+    validations:
+      required: true

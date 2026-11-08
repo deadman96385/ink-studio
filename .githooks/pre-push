@@ -1,0 +1,7 @@
+#!/bin/sh
+set -eu
+python packaging/audit_public.py --tracked
+if [ -n "$(git status --porcelain --untracked-files=normal)" ]; then
+    echo "Commit or review local source changes before publishing." >&2
+    exit 1
+fi

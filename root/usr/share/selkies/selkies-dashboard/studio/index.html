@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#163d3b">
+<title>Ink & Stitch Studio</title>
+<link rel="stylesheet" href="studio.css">
+<body>
+<header><div class="brand"><span class="mark">✳</span><div>Ink & Stitch<small>PP1 DESIGN STUDIO</small></div></div><div class="tools" aria-label="Design tools">
+<button data-key="s" data-code="KeyS" data-ctrl="true">Save SVG</button>
+<button data-key="F6">Lettering</button>
+<button data-key="F5">Stitch settings</button>
+<button class="accent" data-key="F7">Preview stitches</button>
+<button data-key="s" data-code="KeyS" data-ctrl="true" data-alt="true" data-shift="true">Export PES…</button>
+<button id="files">Files</button>
+<button id="help">Guide</button>
+</div></header>
+<main><iframe id="editor" title="Inkscape and Ink/Stitch editor" src="/" allow="clipboard-read; clipboard-write; fullscreen" allowfullscreen></iframe></main>
+<footer><div class="quick"><button data-key="z" data-code="KeyZ" data-ctrl="true">↶ Undo</button><button data-key="5" data-code="Digit5">Fit page</button><button data-key="4" data-code="Digit4">Fit design</button><button id="trackpad" aria-pressed="false">Trackpad</button><button id="keyboard">Keyboard</button><button data-key="Tab">Next field ⇥</button><button data-key="ArrowUp" data-code="ArrowUp" aria-label="Previous option">↑</button><button data-key="ArrowDown" data-code="ArrowDown" aria-label="Next option">↓</button><button data-key="Enter">Enter</button><button data-key="Escape">Esc</button></div><span>100 × 100 mm hoop</span></footer>
+<dialog id="guide"><button class="close" aria-label="Close guide">×</button><p class="eyebrow">FROM DESIGN TO STITCHES</p><h1>Your embroidery workbench.</h1><p>Inkscape and Ink/Stitch run on your computer. Your iPad controls the live workspace, and your files stay saved on the PC.</p><ol><li><b>Create or open an SVG.</b> File → New starts a 100 × 100 mm PP1 page. Start lettering with the <b>Lettering</b> button. To edit existing Ink/Stitch text, select its lettering group first.</li><li><b>Set up the stitches.</b> Select your shapes, then tap <b>Stitch settings</b>. <b>Preview stitches</b> previews the selection; deselect everything to preview the whole design.</li><li><b>Save the master, export a copy.</b> Tap <b>Save SVG</b>. Tap <b>Export PES…</b>, choose “Ink/Stitch: Brother Embroidery Format (.pes)” in the file type list, and save under <b>/designs</b>.</li><li><b>Download and sew.</b> Open <b>Files</b>, download the PES to iPad Files, then transfer it using your embroidery machine’s supported method.</li></ol><h2>Comfortable on the iPad</h2><p>Use landscape. Tap directly or turn on <b>Trackpad</b> for precise cursor movement. In trackpad mode: tap to click, tap and hold to drag, two fingers to scroll or right-click. <b>Keyboard</b> opens text entry. The small tab on the left opens screen and file-transfer settings.</p><p>Keep the actual stitch bounds within 100 × 100 mm. Resize the SVG and regenerate the PES when changing the finished size. Leaving this page keeps the session running; save before restarting the PC.</p><a class="doclink" href="https://inkstitch.org/docs/" target="_blank" rel="noopener">Ink/Stitch documentation ↗</a></dialog>
+<dialog id="file-dialog"><button class="close" aria-label="Close files">×</button><p class="eyebrow">YOUR DESIGNS</p><h1>Ready for the next step.</h1><p>Download a PES, then transfer it to your embroidery machine. Save new designs in <b>/designs</b> to see them here.</p><div class="file-actions"><button id="refresh">Refresh files</button><button id="upload">Upload to workspace</button></div><div id="file-list" aria-live="polite"></div></dialog>
+<script src="studio.js"></script>
+</body></html>

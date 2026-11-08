@@ -1,0 +1,16 @@
+.cross-dialog{width:min(1120px,calc(100vw - 24px));max-height:94dvh;padding:24px;overflow:auto}
+.cross-workspace{display:grid;grid-template-columns:minmax(250px,1fr) minmax(320px,1fr);gap:24px;align-items:start}
+.cross-stage{position:sticky;top:0;min-width:0;background:var(--paper,#faf7f0);border-radius:12px;padding:12px}
+.cross-stage svg,.cross-stage canvas{width:100%;height:340px;display:block;border:1px solid #d8d8cf;border-radius:8px;background:#faf7f0}
+.cross-stage [hidden],.cross-dialog [hidden]{display:none!important}
+.cross-stage nav{margin-bottom:10px}.cross-stage nav button{flex:1;padding:8px}
+.cross-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}.cross-tabs button{flex:1;padding:9px;font-size:.9rem}
+.cross-tabs button[aria-pressed=true],.cross-stage nav button[aria-pressed=true]{background:#214d40;color:#fff;border-color:#214d40}
+.cross-dialog button,.cross-dialog input:not([type=checkbox]),.cross-dialog select,.cross-dialog summary{min-height:44px}
+.cross-dialog .check{min-height:44px;display:flex;align-items:center;gap:10px;padding:6px 0}
+.cross-dialog input[type=checkbox]{width:23px;height:23px;flex-shrink:0}
+.cross-dialog small{font-size:.78rem;line-height:1.45;color:#58645d;font-weight:400}
+.cross-dialog fieldset{min-width:0;margin:0;padding:0;border:0}.cross-controls{min-width:0}
+.cross-dialog .dialog-footer{position:sticky;bottom:-24px;background:var(--paper,#faf7f0);padding:14px 0;margin-top:14px;border-top:1px solid #d8d8cf;z-index:2;display:flex;flex-wrap:wrap;gap:10px}.cross-dialog .dialog-footer button{flex:1}
+#crossImages{height:340px;overflow:auto;background:repeating-conic-gradient(#eee 0 25%,#fff 0 50%) 50% / 16px 16px;border-radius:8px}#crossImages figure{margin:12px;text-align:center}#crossImages img{max-width:100%;max-height:260px;image-rendering:pixelated}#crossImages figcaption{background:#faf7f0;font-size:.8rem;padding:8px}
+@media(max-width:900px){.cross-workspace{grid-template-columns:minmax(0,1fr)}.cross-stage{position:static}.cross-stage svg,.cross-stage canvas,#crossImages{height:240px}.cross-dialog{padding:18px}.cross-dialog .dialog-footer{bottom:-18px}.cross-tabs button{padding:10px 7px}.cross-controls .field-row{grid-template-columns:repeat(2,minmax(0,1fr))}}

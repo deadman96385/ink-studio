@@ -1,0 +1,23 @@
+.click-stitch-dialog{width:min(1100px,97vw);max-height:96dvh}
+.click-stitch-workspace{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:20px;align-items:start}
+.click-stitch-stage{min-width:0;position:sticky;top:0}
+.click-stitch-stage .button-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.click-stitch-stage .button-row button{min-width:44px;padding:9px 11px}
+.click-stitch-stage button[aria-pressed=true]{background:#e7eee0;border-color:#7d9977}
+#clickStitchCanvas,#clickStitchPreview{width:100%;height:clamp(260px,49dvh,540px);border:1px solid #d8dcd2;border-radius:12px;background:#f2f0e8}
+#clickStitchCanvas{touch-action:none;cursor:crosshair;display:block}
+#clickStitchCanvas[hidden],#clickStitchPreview[hidden]{display:none}
+.click-stitch-controls fieldset{margin:0;padding:14px;border:1px solid #d8dcd2;border-radius:12px;min-width:0}
+.click-stitch-controls legend{font-weight:650;padding:0 5px}
+.click-stitch-controls label{margin:0 0 12px;display:block}
+.click-stitch-controls label.check{display:flex}
+.click-stitch-controls input:not([type=checkbox]),.click-stitch-controls select{width:100%;min-height:44px;margin-top:5px}
+.click-stitch-controls h3{font-size:14px;margin:14px 0}
+#clickStitchCount{font-size:12px;color:#6c7e70;white-space:nowrap}
+.click-stitch-regions{list-style:none;padding:0;margin:0;max-height:250px;overflow:auto}
+.click-stitch-regions li{display:flex;align-items:center;gap:8px;border-bottom:1px solid #e1e4d9;padding:5px 0}
+.click-stitch-regions li>span:nth-child(2){flex:1;min-width:0;font-size:12px}
+.click-stitch-regions button{width:44px;min-width:44px;padding:8px;font-size:19px}
+.click-stitch-swatch{width:16px;height:24px;border:1px solid #0003;border-radius:4px;flex:none}
+@media(max-width:850px){.click-stitch-workspace{grid-template-columns:minmax(0,1fr)}.click-stitch-stage{position:static}#clickStitchCanvas,#clickStitchPreview{height:clamp(260px,40dvh,440px)}.click-stitch-controls fieldset{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}.click-stitch-controls fieldset>p,.click-stitch-controls #clickStitchFillFields{grid-column:1/-1}.click-stitch-regions{max-height:180px}}
+@media(max-width:480px){.click-stitch-controls fieldset{display:block}.click-stitch-dialog{padding:16px}.click-stitch-stage .button-row button{padding:8px}.click-stitch-workspace{gap:10px}}

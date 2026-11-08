@@ -1,0 +1,8 @@
+#!/bin/bash
+mkdir -p "$HOME/.config/inkscape/templates" "$HOME/.config/inkscape/keys"
+if [ ! -f "$HOME/.config/inkscape/preferences.xml" ]; then
+  cp /defaults/ink-preferences.xml "$HOME/.config/inkscape/preferences.xml"
+fi
+cp -n /defaults/pp1.svg "$HOME/.config/inkscape/templates/default.svg"
+cp /defaults/ink-keys.xml "$HOME/.config/inkscape/keys/default.xml"
+exec inkscape

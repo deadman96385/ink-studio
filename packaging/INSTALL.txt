@@ -1,0 +1,139 @@
+Ink Studio @VERSION@ Preview
+======================
+
+Ink Studio is a free, open-source companion to Inkscape and Ink/Stitch.
+It runs on your computer and opens its editor in your usual web browser.
+
+Windows requirements
+--------------------
+64-bit Windows 10 (1809 or later) or Windows 11, and an existing Ink/Stitch
+3.3.0 installation with its Python 3.11 bundle. Install Ink/Stitch using its
+official instructions: https://inkstitch.org/docs/install-windows/
+
+Python and application dependencies are included. The launcher uses a compatible
+installed Inkscape when available. Setup and Diagnostics can prepare a private
+Inkscape 1.4.4 from the official vendor archive (about 110 MB; Internet required
+unless the verified archive is already cached).
+It reuses your installed Ink/Stitch without changing its files.
+No Docker, WSL, terminal commands, or administrator access are needed to run it.
+
+Standard installation
+---------------------
+Run InkStudio-@VERSION@-windows-x64-setup.exe and follow the normal setup wizard.
+Open Ink Studio from the Start menu. A notification-area icon provides Open,
+Settings, Projects, Logs and Exit. Closing the browser leaves the local editor
+running; choose Exit or the Stop Ink Studio shortcut to stop it.
+
+First launch opens Setup and Diagnostics before the editor. It checks tool
+versions, the engine bundle, tracing, PDF support and folder access. Choose tools
+or a Projects folder when a check needs attention, then select Check again.
+If automatic Inkscape discovery finds an older installation, choose Prepare
+private Inkscape. This uses a verified cached archive or downloads from the vendor;
+it does not replace the installed Inkscape. Install Ink/Stitch first if it is missing.
+Open editor becomes available after checks pass. Reopen this window from the
+notification-area menu or the Ink Studio Setup and Diagnostics Start menu shortcut.
+
+Program files: %LOCALAPPDATA%\Programs\Ink Studio
+Projects and exports: %LOCALAPPDATA%\Ink Studio\data
+Settings: %LOCALAPPDATA%\Ink Studio\config\settings.json
+Logs: %LOCALAPPDATA%\Ink Studio\logs
+Downloaded tools: %LOCALAPPDATA%\Ink Studio\cache
+
+The default local address is http://127.0.0.1:8801/. The launcher selects a nearby
+available port if necessary. Reopening Ink Studio opens the existing session.
+If another Ink Studio session is using the same project folder, stop it first.
+The launcher prevents two sessions from editing that folder at the same time.
+Use Ink Studio Settings for nonstandard Inkscape/Ink-Stitch paths, a different
+project folder, or a preferred port. Restart Ink Studio after changing settings.
+
+Upgrades use the same installation folder and retain projects and settings.
+Uninstall through Windows Settings > Apps > Installed apps. Uninstall removes
+the program and shortcuts while retaining your projects, settings and logs.
+
+Portable version
+----------------
+Extract the entire portable ZIP to a writable folder and run Ink Studio.exe.
+Keep portable.txt beside the launcher. Data, settings and logs stay in that folder
+under data\, config\, logs\ and cache\. No application installation or registry entry is
+created. The portable app still requires Ink/Stitch to be installed on that PC.
+If moving to another PC, use automatic paths or update paths in Settings.
+Stop Ink Studio before moving, replacing or deleting its program folder.
+To upgrade, extract the new release into the same folder, retaining data, config,
+logs, cache and portable.txt. Export editable project backups before upgrades.
+
+Linux
+-----
+The source archive includes the same backend and editor, a Linux launcher and
+desktop entry, native-host instructions, and optional container deployment.
+See packaging/README.md in the corresponding source archive.
+
+Background operation and troubleshooting
+-----------------------------------------
+Engine windows stay on a private Windows desktop and never switch into view.
+Ink Studio.exe --no-browser starts normally without opening a browser.
+Ink Studio.exe --headless --no-browser also omits the notification-area icon.
+Ink Studio.exe --stop stops only the recorded session for that installation.
+Ink Studio.exe --status returns success if that session is healthy.
+Ink Studio.exe --check checks readiness without a browser, tray icon or download.
+The JSON result is saved under logs\setup-check.json. Exit 0 means ready;
+exit 2 means setup is needed. Other nonzero results indicate a failed operation.
+Ink Studio.exe --diagnostics "C:\path\InkStudio-diagnostics.json" saves a report
+at a chosen new filename. Existing design/settings files are not overwritten.
+Ink Studio.exe --setup-tools prepares private Inkscape, then checks again.
+Add --offline to require verified cached inputs and prevent downloads.
+
+Save diagnostics in the setup window exports the same report. Reports contain
+check codes, fixed remedies and numeric versions. They exclude designs, personal
+paths, environment values and raw logs. Review the JSON before sharing it.
+launcher.log is a separate, detailed local log and can contain personal paths;
+setup-private.log retains bounded exception details for local troubleshooting.
+Neither log is included in diagnostics. Fixed probes can initialize private caches
+and temporary write tests; they do not open or change saved designs.
+
+If startup fails, use Settings to locate inkstitch.exe (or its installation
+folder) and inkscape.com. Logs contain detailed diagnostics. The supplied Python
+and helpers do not depend on a development checkout or a system Python install.
+
+Offline Windows setup
+---------------------
+Install Ink/Stitch and a compatible complete Inkscape beforehand, then select them
+in Settings. No Inkscape download is needed when the selected installation passes.
+Alternatively, on a connected computer download the pinned vendor archive:
+https://media.inkscape.org/dl/resources/file/inkscape-1.4.4_2026-05-05_dcaf3e7-x64_mHK170m.7z
+Expected SHA256:
+c4dbd64a92628abe7d7316c43f9325396e4d48417866027ee3d993d4f5b54c6a
+Copy it to cache\downloads\inkscape-1.4.4-x64.7z under your Ink Studio state
+folder (or portable folder). Use the exact filename; setup verifies the hash.
+Allow free disk space for both the archive and extracted tools. Extraction is
+validated before it becomes the active private cache; an interrupted attempt can
+be retried without replacing the installed Inkscape or touching saved designs.
+Keep Inkscape blank in Settings for automatic/private selection, then run:
+  "Ink Studio.exe" --setup-tools --offline
+The setup window's Prepare button also reuses that verified archive. A failed
+download or hash check leaves installed tools and saved projects in place.
+
+Linux setup and diagnostics
+---------------------------
+Use packaging/linux/ink-studio --check before starting the editor. Use
+--diagnostics /path/to/InkStudio-diagnostics.json to save the shareable report.
+Both commands run without a browser or graphics session. Install the dependencies
+listed in packaging/README.md; the checker does not install system packages.
+Supply --inkscape, --inkstitch and --data for nonstandard installations, and add
+--configure to save these choices without starting the server. Settings normally
+use $XDG_CONFIG_HOME/ink-studio/settings.json (default ~/.config/ink-studio).
+The default project folder is $XDG_DATA_HOME/ink-studio (default ~/.local/share).
+STUDIO_STATE_HOME provides an isolated state/config folder for unattended tests.
+Environment overrides take precedence over saved choices. The engine's private
+configuration is kept with the selected data folder, separate from desktop settings.
+
+This preview is unsigned. Windows may identify its publisher as unknown.
+Do not bypass a security warning automatically; verify the source of the download.
+The release includes SHA256SUMS.txt and corresponding source code. Signing is a
+separate release step; the preview installer does not claim a verified publisher.
+
+License and attribution
+-----------------------
+Ink Studio is licensed under GPL-3.0-or-later. See LICENSE and NOTICE.txt.
+Third-party components retain their own licenses under licenses\.
+Ink Studio is an independent companion and does not claim endorsement by the
+Inkscape or Ink/Stitch projects. Inno Setup is used to build the Windows installer.

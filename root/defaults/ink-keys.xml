@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<keys name="Ink and Stitch touch shortcuts">
+  <bind keys="F5" gaction="app.org.inkstitch.params" />
+  <bind keys="F6" gaction="app.org.inkstitch.lettering" />
+  <bind keys="F7" gaction="app.org.inkstitch.simulator" />
+</keys>

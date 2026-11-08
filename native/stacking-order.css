@@ -1,0 +1,7 @@
+.order-display-dialog{width:min(1040px,96vw)}
+.order-display-columns{display:grid;grid-template-columns:minmax(300px,.9fr) minmax(300px,1.1fr);gap:24px}
+.order-display-columns section{min-width:0}.order-display-columns input,.order-display-columns select,.order-display-columns button,.order-display-columns a{min-height:44px}
+#orderDisplayPreview{width:100%;max-height:62vh;display:block;background:#e9ece4;border:1px solid var(--line,#cbd1c6);border-radius:16px;pointer-events:none}
+#orderDisplayDownload{display:flex;align-items:center;justify-content:center;text-align:center;margin:8px 0}
+#orderDisplayDownload[hidden]{display:none}
+@media(max-width:850px){.order-display-columns{grid-template-columns:1fr;gap:12px}#orderDisplayPreview{max-height:36vh}.order-display-dialog{width:96vw}}

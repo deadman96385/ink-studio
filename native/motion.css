@@ -1,0 +1,62 @@
+/* Motion tokens and interface motion. See MOTION_PLAN.md.
+   Rules: transform/opacity only; enter decelerates, exit accelerates and is
+   shorter; gestures stay 1:1; reduced motion keeps a short fade only. */
+:root{
+  --dur-press:100ms;--dur-quick:160ms;--dur-standard:240ms;--dur-emphasized:380ms;
+  --ease-standard:cubic-bezier(.2,0,0,1);
+  --ease-enter:cubic-bezier(.05,.7,.1,1);
+  --ease-exit:cubic-bezier(.3,0,.8,.15);
+  --ease-pop:cubic-bezier(.34,1.4,.64,1);
+}
+
+/* ---- Canvas: placed layers grow out of their placement point ----
+   --ox/--oy are the origin in canvas millimetres (SVG user units). */
+.art-enter,.art-exit{transform-box:view-box;transform-origin:0 0;animation-fill-mode:both}
+.art-place{animation-name:art-grow;animation-timing-function:var(--ease-pop)}
+.art-swap{animation-name:art-settle;animation-timing-function:var(--ease-enter)}
+.art-exit{pointer-events:none;animation-name:art-shrink;animation-timing-function:var(--ease-exit)}
+@keyframes art-grow{
+  0%{opacity:0;transform:translate(var(--ox),var(--oy)) scale(.4) translate(calc(-1*var(--ox)),calc(-1*var(--oy)))}
+  40%{opacity:1}
+  100%{opacity:1;transform:translate(var(--ox),var(--oy)) scale(1) translate(calc(-1*var(--ox)),calc(-1*var(--oy)))}
+}
+@keyframes art-settle{
+  0%{opacity:0;transform:translate(var(--ox),var(--oy)) scale(.96) translate(calc(-1*var(--ox)),calc(-1*var(--oy)))}
+  100%{opacity:1;transform:translate(var(--ox),var(--oy)) scale(1) translate(calc(-1*var(--ox)),calc(-1*var(--oy)))}
+}
+@keyframes art-shrink{
+  0%{opacity:1;transform:translate(var(--ox),var(--oy)) scale(1) translate(calc(-1*var(--ox)),calc(-1*var(--oy)))}
+  100%{opacity:0;transform:translate(var(--ox),var(--oy)) scale(.85) translate(calc(-1*var(--ox)),calc(-1*var(--oy)))}
+}
+/* Selection outline fades in when the selection changes; after a placement it
+   waits until the art has mostly grown. */
+#selectionOverlay.sel-enter{animation:fade-in var(--dur-quick) var(--ease-enter) both}
+#selectionOverlay.sel-enter.sel-after-place{animation-delay:220ms}
+
+/* ---- Interface ---- */
+button,.button,.chip,.tool,.tabs button{transition:background-color var(--dur-press) var(--ease-standard),border-color var(--dur-press) var(--ease-standard),color var(--dur-press) var(--ease-standard),box-shadow var(--dur-quick) var(--ease-standard),transform var(--dur-press) var(--ease-standard)}
+button:active:not(:disabled),.button:active{transform:scale(.97)}
+
+dialog[open]{animation:dialog-in var(--dur-standard) var(--ease-enter)}
+dialog[open]::backdrop{animation:fade-in var(--dur-standard) var(--ease-standard)}
+@keyframes dialog-in{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
+
+.toast:not([hidden]){animation:toast-in var(--dur-standard) var(--ease-enter)}
+@keyframes toast-in{from{opacity:0;transform:translate(-50%,14px)}to{opacity:1;transform:translate(-50%,0)}}
+
+/* <details> open/close and newly shown content are animated in motion-ui.mjs. */
+.control-section summary::before{transition:transform var(--dur-quick) var(--ease-standard)}
+
+@keyframes fade-in{from{opacity:0}to{opacity:1}}
+@keyframes rise-in{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+
+/* ---- Reduced motion: no scaling or travel, keep a short fade ---- */
+@media (prefers-reduced-motion:reduce){
+  .art-place,.art-swap{animation-name:fade-in!important;animation-duration:var(--dur-quick)!important;animation-delay:0ms!important}
+  .art-exit{animation-name:fade-out!important}
+  dialog[open]{animation-name:fade-in}
+  .toast:not([hidden]){animation-name:fade-in}
+  button:active:not(:disabled),.button:active{transform:none}
+  #selectionOverlay.sel-enter.sel-after-place{animation-delay:0ms}
+}
+@keyframes fade-out{from{opacity:1}to{opacity:0}}
