@@ -1,0 +1,80 @@
+name: Tagged release
+
+on:
+  push:
+    tags: ['v*']
+  # Manual runs exercise the complete build and audit without publishing.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tagged-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  version:
+    runs-on: ubuntu-24.04
+    outputs:
+      tag: ${{ steps.version.outputs.tag }}
+      commit: ${{ steps.version.outputs.commit }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.14'
+      - name: Validate version, changelog, and source revision
+        id: version
+        env:
+          RELEASE_TAG: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
+          RELEASE_COMMIT: ${{ github.sha }}
+        run: python packaging/publish_release.py metadata --tag "$RELEASE_TAG" --commit "$RELEASE_COMMIT"
+
+  checks-and-build:
+    needs: version
+    uses: ./.github/workflows/checks.yml
+    with:
+      build_windows: true
+
+  release:
+    needs: [version, checks-and-build]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.14'
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: ink-studio-unsigned-preview
+          path: dist
+          digest-mismatch: error
+      - name: Verify packages and exact source; prepare release notes
+        env:
+          RELEASE_TAG: ${{ needs.version.outputs.tag }}
+          RELEASE_COMMIT: ${{ needs.version.outputs.commit }}
+          RELEASE_REPOSITORY: ${{ github.repository }}
+          RELEASE_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: >-
+          python packaging/publish_release.py verify --dist dist
+          --tag "$RELEASE_TAG" --commit "$RELEASE_COMMIT"
+          --repository "$RELEASE_REPOSITORY" --run-url "$RELEASE_RUN_URL"
+      - name: Publish verified unsigned preview
+        if: github.event_name == 'push' && github.ref_type == 'tag'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ needs.version.outputs.tag }}
+          RELEASE_COMMIT: ${{ needs.version.outputs.commit }}
+          RELEASE_REPOSITORY: ${{ github.repository }}
+          RELEASE_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: >-
+          python packaging/publish_release.py publish --dist dist
+          --tag "$RELEASE_TAG" --commit "$RELEASE_COMMIT"
+          --repository "$RELEASE_REPOSITORY" --run-url "$RELEASE_RUN_URL"

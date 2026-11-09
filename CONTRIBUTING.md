@@ -13,6 +13,7 @@ possible, with platform-specific boundaries at those modules.
 Run fast checks without an engine:
 
 ```sh
+python -m unittest discover -s packaging -p test_publish_release.py -v
 python -m unittest discover -s native -p test_http_guard.py -v
 python -m unittest discover -s native -p test_app_config.py -v
 python -m unittest discover -s native -p test_setup_check.py -v

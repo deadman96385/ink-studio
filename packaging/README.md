@@ -67,26 +67,45 @@ assets, with download links in the repository README. See
 
 ## Publishing a preview release
 
-1. Update `VERSION`, changelog, and versioned download links in the repository
-   README. Commit the reviewed source and push it to `main`.
-2. Run the **Checks** workflow manually for that revision. Wait for Windows/Linux
-   checks, the Windows build, and the artifact audit to pass. Record the run URL
-   and its full source commit SHA.
-3. Download `ink-studio-unsigned-preview` from that specific run into a separate
-   staging directory. Run `packaging/verify_release.py --dist STAGING_DIRECTORY`.
-   Verify the source archive matches that commit, its content hash matches the
-   release manifest, and the package version matches `VERSION`.
-4. Create a draft GitHub Release with tag `vVERSION` targeting that exact source
-   commit. Attach the installer, portable ZIP, matching application source archive,
-   third-party source archive, `SHA256SUMS.txt`, `release-manifest.json`, and
-   `verification-summary.json`.
-5. Label unsigned builds as **unsigned previews**, include requirements and the
-   successful build URL in the release notes, and publish as a prerelease.
-   Verify the public release assets and their checksums before sharing the links.
+The **Tagged release** workflow builds and publishes when a version tag is pushed.
+Use `vMAJOR.MINOR.PATCH`, matching `VERSION` exactly. For example, after updating
+`VERSION` to `0.1.4`, adding its changelog entry, and updating the versioned
+download links in the repository README, commit those changes and run:
 
-The build workflow does not publish automatically. Signed release status still
-requires the signing policy and trusted-signature verification; publishing an
-unsigned preview does not satisfy those gates.
+```sh
+git push origin main
+git tag -a v0.1.4 -m "Ink Studio 0.1.4"
+git push origin v0.1.4
+```
+
+The workflow:
+
+1. Validates the tag, `VERSION`, changelog entry, and exact checkout revision.
+2. Runs the shared Windows/Linux checks and builds the Windows installer,
+   portable ZIP, application source archive, and third-party source archive.
+3. Audits package contents and checksums. It compares every application source
+   file with the tagged Git commit and checks the source identity in the manifest.
+4. Creates a draft GitHub Release with notes from the changelog and build
+   provenance. It uploads the four packages, `SHA256SUMS.txt`,
+   `release-manifest.json`, and `verification-summary.json`.
+5. Checks GitHub's digest and size for every uploaded asset, rechecks the tag,
+   and publishes the complete release as an **unsigned preview prerelease**.
+
+Application downloads stay in GitHub Releases and the repository README. No
+personal token or additional repository secret is needed: the publishing job
+uses its scoped `GITHUB_TOKEN`. Checkouts do not retain write credentials.
+
+Run **Tagged release** manually from Actions to exercise the complete build and
+verification without creating or changing a release. Branch/PR checks and the
+standalone manual **Checks** preview build remain available.
+
+If publishing is interrupted, rerun the failed publishing job to reuse the same
+build artifacts and resume a matching draft. Mismatched draft assets stop the
+workflow; they are never replaced automatically. A published release is left
+untouched on reruns. Do not move published version tags; use a new version.
+
+Signed release status still requires the signing policy and trusted-signature
+verification. Automated unsigned preview publication does not satisfy those gates.
 
 ## Linux
 
