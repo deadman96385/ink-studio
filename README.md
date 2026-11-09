@@ -4,6 +4,9 @@ A free, open-source embroidery design companion for [Inkscape](https://inkscape.
 and [Ink/Stitch](https://inkstitch.org/). Ink Studio runs on your computer and opens
 its editor in your web browser.
 
+**[Download Ink Studio 0.1.3](https://github.com/deadman96385/ink-studio/releases/tag/v0.1.3)**
+· [Installation](#installation)
+
 ![Ink Studio editing a botanical embroidery design](docs/assets/editor.jpg)
 
 **[Explore the visual tour](https://deadman96385.github.io/ink-studio/)** before
@@ -23,6 +26,23 @@ worksheet, plus an interactive replay of a real stitch export. The
 - Preview stitches, check designs, and export PES and other embroidery formats.
 - Create PDF worksheets and save editable project backups.
 
+## Downloads
+
+Get the packages from the [GitHub release](https://github.com/deadman96385/ink-studio/releases/tag/v0.1.3).
+The Windows packages are unsigned previews.
+
+| Package | Download |
+| --- | --- |
+| Windows x64 installer | [InkStudio-0.1.3-windows-x64-setup.exe](https://github.com/deadman96385/ink-studio/releases/download/v0.1.3/InkStudio-0.1.3-windows-x64-setup.exe) |
+| Windows x64 portable | [InkStudio-0.1.3-windows-x64-portable.zip](https://github.com/deadman96385/ink-studio/releases/download/v0.1.3/InkStudio-0.1.3-windows-x64-portable.zip) |
+| Matching application source (including Linux) | [InkStudio-0.1.3-source.tar.gz](https://github.com/deadman96385/ink-studio/releases/download/v0.1.3/InkStudio-0.1.3-source.tar.gz) |
+| Third-party dependency sources | [InkStudio-0.1.3-third-party-sources.zip](https://github.com/deadman96385/ink-studio/releases/download/v0.1.3/InkStudio-0.1.3-third-party-sources.zip) |
+
+[SHA-256 checksums](https://github.com/deadman96385/ink-studio/releases/download/v0.1.3/SHA256SUMS.txt)
+and the [release manifest](https://github.com/deadman96385/ink-studio/releases/download/v0.1.3/release-manifest.json)
+are included with the release. See the [Linux setup guide](packaging/README.md#linux)
+to run from source.
+
 ## Requirements
 
 - **Ink/Stitch 3.3.0** and an Inkscape installation.
@@ -38,19 +58,15 @@ worksheet, plus an interactive replay of a real stitch export. The
 
 1. Install Inkscape and [Ink/Stitch](https://inkstitch.org/docs/install-windows/)
    if they are not already installed.
-2. Run the Windows installer, or extract the portable ZIP to a writable folder
-   and run `Ink Studio.exe`.
+2. Choose an installer or portable ZIP from [Downloads](#downloads). Run the
+   installer, or extract the portable ZIP to a writable folder and run
+   `Ink Studio.exe`.
 3. Open Ink Studio and follow **Setup and Diagnostics** to check your tools
    and choose where to save projects.
 
 Setup can prepare a private Inkscape copy if your installed version lacks image
 tracing. See the [installation guide](packaging/INSTALL.txt) for offline setup,
 upgrades, backups, and troubleshooting.
-
-Windows preview builds are currently unsigned. Download the
-`ink-studio-unsigned-preview` artifact from a successful manual run of the
-[Windows preview workflow](https://github.com/deadman96385/ink-studio/actions/workflows/checks.yml).
-Artifact downloads require GitHub sign-in and are retained for seven days.
 
 ### Linux
 

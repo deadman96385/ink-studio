@@ -61,8 +61,32 @@ rejects them; trusted-signature verification is not available in this toolchain.
 See the [code signing policy](../CODE_SIGNING_POLICY.md).
 
 The GitHub Actions workflow checks Windows and Linux and provides a manually
-dispatched Windows preview build. It does not publish releases. See
+dispatched Windows preview build. Distribute approved packages as GitHub Release
+assets, with download links in the repository README. See
 [CONTRIBUTING.md](../CONTRIBUTING.md) for unit and real-engine tests.
+
+## Publishing a preview release
+
+1. Update `VERSION`, changelog, and versioned download links in the repository
+   README. Commit the reviewed source and push it to `main`.
+2. Run the **Checks** workflow manually for that revision. Wait for Windows/Linux
+   checks, the Windows build, and the artifact audit to pass. Record the run URL
+   and its full source commit SHA.
+3. Download `ink-studio-unsigned-preview` from that specific run into a separate
+   staging directory. Run `packaging/verify_release.py --dist STAGING_DIRECTORY`.
+   Verify the source archive matches that commit, its content hash matches the
+   release manifest, and the package version matches `VERSION`.
+4. Create a draft GitHub Release with tag `vVERSION` targeting that exact source
+   commit. Attach the installer, portable ZIP, matching application source archive,
+   third-party source archive, `SHA256SUMS.txt`, `release-manifest.json`, and
+   `verification-summary.json`.
+5. Label unsigned builds as **unsigned previews**, include requirements and the
+   successful build URL in the release notes, and publish as a prerelease.
+   Verify the public release assets and their checksums before sharing the links.
+
+The build workflow does not publish automatically. Signed release status still
+requires the signing policy and trusted-signature verification; publishing an
+unsigned preview does not satisfy those gates.
 
 ## Linux
 

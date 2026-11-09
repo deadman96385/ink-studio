@@ -34,6 +34,8 @@ command. See [GitHub's custom workflow guide](https://docs.github.com/en/pages/g
 
 ## Maintaining the tour
 
+- Keep application download links and release instructions in the repository
+  README. The site is a visual tour; it links to repository setup documentation.
 - Use the public checkout and an isolated app state/data directory for captures.
   Screenshots must show only an original, redistributable sample, never saved user
   projects, personal settings, paths, or private deployment details.
