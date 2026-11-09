@@ -280,6 +280,7 @@
     "native/verify_wave_fill.py",
     "native/windows_command.cs",
     "native/windows_desktop.py",
+    "native/workflow-state.mjs",
     "packaging/INSTALL.txt",
     "packaging/README.md",
     "packaging/audit_public.py",

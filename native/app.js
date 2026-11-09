@@ -47,6 +47,7 @@ import {createScenes} from './scenes.mjs';
 import {PenGate,makeStroke,createPenControls} from './pen.mjs';
 import {createCanvasMotion,prefersReducedMotion} from './motion.mjs';
 import {installInterfaceMotion,reveal} from './motion-ui.mjs';
+import {createTaskState,createSaveQueue,createProjectTransition} from './workflow-state.mjs';
 const $ = (id) => document.getElementById(id);
 const NS = 'http://www.w3.org/2000/svg';
 const copy = (v) => structuredClone(v);
@@ -71,6 +72,21 @@ let toolFinder=null;
 let respiraUrl='';
 let selectionShelf=null;
 const penGate=new PenGate();
+const previewTask=createTaskState(state=>{
+  $('previewDialog').dataset.state=state.status;
+  $('previewDialog').setAttribute('aria-busy',String(state.status==='pending'));
+});
+const saveQueue=createSaveQueue({write:snapshot=>api('/api/save',{project:snapshot}),onChange:state=>{
+  if(project.id!==state.projectId||modelRevision!==state.revision)return;
+  $('saveState').dataset.state=state.status;
+  if(state.status==='saved'){dirty=false;saveRevision=state.revision;$('saveState').textContent='Saved in Studio';}
+  else $('saveState').textContent=state.status==='error'?'Local copy only · tap Save to retry':'Saving in Studio…';
+}});
+const projectTransitions=createProjectTransition({getProject:()=>project,getRevision:()=>modelRevision,save:()=>saveProject(false,true),onChange:state=>{
+  $('projectsDialog').dataset.state=state.status;
+  $('projectsDialog').setAttribute('aria-busy',String(state.status==='pending'));
+  for(const button of $('projectsDialog').querySelectorAll('.project-card,#newProjectBtn,#saveCopyBtn'))button.disabled=state.status==='pending';
+}});
 
 async function api(path, data) {
   const r = await fetch(path, data === undefined ? {} : {method:'POST',headers:{'Content-Type':'application/json','X-InkStudio-Preferences':JSON.stringify(documentSettings(project.embroiderySettings))},body:JSON.stringify(data)});
@@ -84,6 +100,11 @@ function checkpoint() { history.push(copy(project)); if(history.length>60)histor
 function changed(render=true,refreshLinks=true) {
   if(refreshLinks)linked.changed();
   dirty=true; modelRevision++; lastExport=null;
+  if(previewTask.state.status!=='idle'){
+    previewTask.cancel();simulator.stop();
+    if($('previewDialog').open){$('previewContent').hidden=true;$('previewStatus').hidden=false;$('previewStatus').textContent='The design changed. Preview it again.';simulator.scope('all',chosen().length,false);}
+  }
+  $('saveState').dataset.state='dirty';
   try { localStorage.setItem('inkstudio-project-v1',JSON.stringify(project)); $('saveState').textContent='Saved in this browser'; }
   catch { $('saveState').textContent='Browser storage full — tap Save'; }
   if(render)renderAll();else selectionShelf?.render();
@@ -92,9 +113,10 @@ function changed(render=true,refreshLinks=true) {
 }
 function mutate(fn) { checkpoint(); fn(); changed(); }
 async function saveProject(show=true,required=false) {
-  const snapshot=copy(project), revision=modelRevision;
-  try { await api('/api/save',{project:snapshot}); if(project.id===snapshot.id && revision===modelRevision){dirty=false;saveRevision=revision;$('saveState').textContent='Saved in Studio';} if(show)toast('Project saved in Studio.'); }
-  catch(e){$('saveState').textContent='Local copy only · tap Save to retry';if(required)throw e;if(show)toast(e.message);}
+  clearTimeout(saveTimer);
+  const projectId=project.id,revision=modelRevision;
+  try {await saveQueue.save(project,revision);if(show&&project.id===projectId&&revision===modelRevision)toast('Project saved in Studio.');}
+  catch(e){if(required)throw e;if(show&&project.id===projectId)toast(e.message);}
 }
 function chosen() { return project.layers.filter(l=>selected.has(l.id)); }
 function single() { return chosen().length===1 ? chosen()[0] : null; }
@@ -448,9 +470,10 @@ $('letterForm').onsubmit=async e=>{
     if(result.width>hoop().w||result.height>hoop().h)throw new Error(`This lettering is ${round(result.width)} × ${round(result.height)} mm. Use fewer characters, a smaller font scale, or more lines to fit the ${hoop().short} mm hoop.`);
     mutate(()=>{let l=project.layers.find(l=>l.id===targetId);if(l){const cx=l.x+l.width/2,cy=l.y+l.height/2;Object.assign(l,{width:result.width,height:result.height,x:cx-result.width/2,y:cy-result.height/2,color,preserveFontColors,lettering:result.settings,name:result.settings.text.replace(/\n/g,' / ')});}else{l=newLayer('text',{name:result.settings.text.replace(/\n/g,' / '),lettering:result.settings,color,preserveFontColors,x:(hoop().w-result.width)/2,y:(hoop().h-result.height)/2,width:result.width,height:result.height});project.layers.push(l);}selected=new Set([l.id]);});
     $('letterDialog').close();setMode('select');setTab('layer');
-  }catch(err){$('letterError').textContent=err.message;}
+  }catch(err){if(generation===letterGeneration&&$('letterDialog').open)$('letterError').textContent=err.message;}
   finally{if(generation===letterGeneration){button.disabled=false;button.textContent=targetId?'Update lettering':'Create lettering';}}
 };
+$('letterDialog').addEventListener('close',()=>letterGeneration++);
 $('fontScale').oninput=()=>updateFontInfo();
 
 function svgPoint(event) {const p=new DOMPoint(event.clientX,event.clientY);return p.matrixTransform($('canvas').getScreenCTM().inverse());}
@@ -528,7 +551,7 @@ async function importFile(file) {
     if(file.size>12*1024*1024)throw new Error('Import a project smaller than 12 MB, or embroidery file smaller than 4 MB.');
     if(!/\.(svg|json)$/i.test(file.name)){if(file.size>4*1024*1024)throw new Error('Import an embroidery file smaller than 4 MB.');toast('Reading embroidery stitches…');const bytes=new Uint8Array(await file.arrayBuffer());let binary='';for(let i=0;i<bytes.length;i+=8192)binary+=String.fromCharCode(...bytes.subarray(i,i+8192));const result=await api('/api/import-embroidery',{name:file.name,data:btoa(binary)}),r=result.asset;assets.set(r.key,r);const scale=Math.min(1,90/r.width,90/r.height),w=r.width*scale,h=r.height*scale;addLayer(newLayer('import',{name:file.name,asset:r.key,x:(hoop().w-w)/2,y:(hoop().h-h)/2,width:w,height:h,stitch:'original',recolor:false}),Object.fromEntries(result.preview.threads.map(t=>[t.color.toLowerCase(),{name:t.name,number:t.number,brand:t.brand}])));toast(result.note);return;}
     const text=await file.text();
-    if(file.name.toLowerCase().endsWith('.json')){const backup=JSON.parse(text),p=await api('/api/restore',{project:backup});validateProject(p);const orderWarning=[await restoreOrderDisplay(backup,p,api),await restoreDensityMap(backup,p,api),await restoreTroubleshoot(backup,p,api)].filter(Boolean).join(" ");await saveProject(false,true);checkpoint();project=p;selected.clear();changed();await hydrate();toast(orderWarning||'Project and embedded artwork restored.');}
+    if(file.name.toLowerCase().endsWith('.json')){const backup=JSON.parse(text);let orderWarning='';await switchProject(async()=>{const p=await api('/api/restore',{project:backup});validateProject(p);orderWarning=[await restoreOrderDisplay(backup,p,api),await restoreDensityMap(backup,p,api),await restoreTroubleshoot(backup,p,api)].filter(Boolean).join(' ');return p;});toast(orderWarning||'Project and embedded artwork restored.');}
     else {toast('Reading SVG paths…');const r=await api('/api/import',{name:file.name,svg:text});assets.set(r.key,r);const scale=r.placement?1:Math.min(1,90/r.width,90/r.height),w=r.width*scale,h=r.height*scale;const imported=newLayer('import',{name:file.name.replace(/\.svg$/i,''),asset:r.key,x:r.placement?.x??(hoop().w-w)/2,y:r.placement?.y??(hoop().h-h)/2,width:w,height:h,stitch:'original',recolor:false});addLayer(imported,null,r.embroiderySettings,r.crossGrids);if(r.svgUpdate?.offer)offerLegacyUpdate(file.name,text,imported.id);else if(r.svgUpdate)toast(`Updated stitch settings saved by ${r.svgUpdate.label} to the current Ink/Stitch format.`);}
   }catch(e){toast(e.message);}
 }
@@ -563,23 +586,33 @@ function layerListToggle(){
   title.onclick=flip;title.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();flip();}};
 }
 
-async function openProjects(){
-  $('projectsDialog').showModal();$('projectList').textContent='Loading projects…';
-  try{const list=await api('/api/projects');$('projectList').replaceChildren();const examples=document.createElement('div');examples.className='project-examples-list';for(const p of list){const b=document.createElement('button');b.className='project-card';const name=document.createElement('span');name.textContent=p.name||'Untitled';const date=document.createElement('small');date.textContent=new Date(p.updated*1000).toLocaleDateString();b.append(name,date);b.onclick=async()=>{try{if(dirty)await saveProject(false,true);clearTimeout(saveTimer);const next=await api('/api/projects/'+p.id);validateProject(next);history=[];future=[];project=next;selected.clear();changed();clearTimeout(saveTimer);dirty=false;saveRevision=modelRevision;$('saveState').textContent='Saved in Studio';$('projectsDialog').close();await hydrate();}catch(e){toast(e.message);}};(p.example?examples:$('projectList')).append(b);}const own=list.filter(p=>!p.example).length;if(!own){const empty=document.createElement('p');empty.className='caption';empty.textContent='Save your first project to keep it here.';$('projectList').append(empty);}if(examples.children.length){const d=document.createElement('details');d.className='project-examples';const s=document.createElement('summary');s.textContent=`Examples & test designs (${examples.children.length})`;d.append(s,examples);$('projectList').append(d);}}catch(e){$('projectList').textContent=e.message;}
+async function switchProject(load,{saved=false,resetHistory=false,persist=false,selectAll=false,nextTab=null}={}){
+  await projectTransitions.run(async()=>{const next=await load();validateProject(next);return next;},async next=>{
+    if(resetHistory){history=[];future=[];}else checkpoint();
+    project=next;selected=selectAll?new Set(next.layers.filter(l=>l.visible!==false).map(l=>l.id)):new Set();changed();
+    if(saved){clearTimeout(saveTimer);dirty=false;saveRevision=modelRevision;$('saveState').dataset.state='saved';$('saveState').textContent='Saved in Studio';}
+    await hydrate();if(persist)await saveProject(false,true);
+    $('projectsDialog').close();if(nextTab)setTab(nextTab);
+  });
 }
-let exportGeneration=0;
+let projectListGeneration=0;
+async function openProjects(){
+  const generation=++projectListGeneration;
+  $('projectsDialog').showModal();$('projectList').textContent='Loading projects…';
+  try{const list=await api('/api/projects');if(generation!==projectListGeneration||!$('projectsDialog').open)return;$('projectList').replaceChildren();const examples=document.createElement('div');examples.className='project-examples-list';for(const p of list){const b=document.createElement('button');b.className='project-card';const name=document.createElement('span');name.textContent=p.name||'Untitled';const date=document.createElement('small');date.textContent=new Date(p.updated*1000).toLocaleDateString();b.append(name,date);b.onclick=async()=>{try{await switchProject(()=>api('/api/projects/'+p.id),{saved:true,resetHistory:true});}catch(e){toast(e.message);}};(p.example?examples:$('projectList')).append(b);}const own=list.filter(p=>!p.example).length;if(!own){const empty=document.createElement('p');empty.className='caption';empty.textContent='Save your first project to keep it here.';$('projectList').append(empty);}if(examples.children.length){const d=document.createElement('details');d.className='project-examples';const s=document.createElement('summary');s.textContent=`Examples & test designs (${examples.children.length})`;d.append(s,examples);$('projectList').append(d);}}catch(e){if(generation===projectListGeneration&&$('projectsDialog').open)$('projectList').textContent=e.message;}
+}
 const simulator=createSimulator({preview:scope=>preview(scope)});
 async function preview(scope='all'){
   let snapshot=copy(project);const ids=chosen().filter(l=>l.visible!==false&&l.type!=='image'&&(!l.role||l.role==='artwork')).map(l=>l.id);
   try{if(scope==='selection'){snapshot=selectionProject(snapshot,ids);snapshot.id=uid();}}catch(e){toast(e.message);return;}
   if(!project.layers.some(l=>l.visible!==false&&l.type!=='image'&&(!l.role||l.role==='artwork'))){toast('Add a visible stitched layer first. Reference images and helpers do not sew.');return;}
   simulator.stop();simulator.scope(scope,ids.length,true);if(!$('previewDialog').open)$('previewDialog').showModal();$('previewContent').hidden=true;$('previewStatus').hidden=false;$('previewStatus').textContent='Building editable artwork…';
-  const generation=++exportGeneration;
+  const request=previewTask.begin({projectId:project.id,revision:modelRevision,scope});
   try {
-    await saveProject(false);if(generation!==exportGeneration)return;const {id}=await api('/api/export',{project:snapshot});
-    while(generation===exportGeneration){const job=await api('/api/jobs/'+id);if(generation!==exportGeneration)return;$('previewStatus').textContent=job.message;if(job.state==='error')throw new Error(job.message);if(job.state==='done'){lastExport=job.result;lastExportFabric=snapshot.fabric;showPreview();break;}await new Promise(r=>setTimeout(r,900));}
-  }catch(e){if(generation===exportGeneration){$('previewStatus').hidden=false;$('previewStatus').textContent=e.message;}}
-  finally{if(generation===exportGeneration)simulator.scope(scope,ids.length,false);}
+    await saveProject(false);if(!request.current())return;const {id}=await api('/api/export',{project:snapshot});
+    while(request.current()){const job=await api('/api/jobs/'+id);if(!request.current())return;$('previewStatus').textContent=job.message;if(job.state==='error')throw new Error(job.message);if(job.state==='done'){lastExport=job.result;lastExportFabric=snapshot.fabric;showPreview();request.succeed();break;}if(!['queued','working'].includes(job.state))throw new Error('Preview stopped unexpectedly. Generate the preview again.');await new Promise(r=>setTimeout(r,900));}
+  }catch(e){if(request.fail(e)){lastExport=null;$('previewContent').hidden=true;$('previewStatus').hidden=false;$('previewStatus').textContent=e.message;}}
+  finally{if(request.current())simulator.scope(scope,ids.length,false);}
 }
 function showPreview(){
   const p=lastExport.preview;$('previewStatus').hidden=true;$('previewContent').hidden=false;
@@ -596,8 +629,10 @@ function showPreview(){
   $('stitchStats').innerHTML=`<div class="stat-row"><span>Finished size</span><strong>${round(p.width)} × ${round(p.height)} mm</strong></div><div class="stat-row"><span>Stitches</span><strong>${p.stitches.toLocaleString()}</strong></div><div class="stat-row"><span>Colors / thread steps</span><strong>${new Set(p.threads.map(t=>t.color)).size} / ${p.threads.length}</strong></div><div class="stat-row"><span>Trims / jumps</span><strong>${p.trims} / ${p.jumps}</strong></div><div class="stat-row"><span>Extra stops / color changes</span><strong>${p.stops||0} / ${p.colorChanges??Math.max(0,p.threads.length-1)}</strong></div>`;
   $('threadList').innerHTML='<h3>Thread order</h3>'+p.threads.map((t,i)=>`<div class="thread-item"><span style="background:${escape(t.color)}"></span><div>${i+1}. ${escape(t.name)}<br><small>${escape([t.brand,t.number,t.color].filter(Boolean).join(' · '))}</small></div></div>`).join('');
   simulator.load(p,lastExportFabric);
+  if(!previewTask.pending)previewTask.begin().succeed();
 }
-$('previewDialog').addEventListener('close',()=>{simulator.stop();exportGeneration++;});
+$('previewDialog').addEventListener('close',()=>{simulator.stop();previewTask.cancel();});
+$('projectsDialog').addEventListener('close',()=>projectListGeneration++);
 
 document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>$(b.dataset.close).close());
 document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
@@ -615,9 +650,9 @@ $('projectName').onblur=()=>editingProjectName=false;
 $('multiBtn').onclick=()=>{multi=!multi;$('multiBtn').setAttribute('aria-pressed',multi);$('multiBtn').textContent=multi?'Done selecting':'Select multiple';if(multi)setTab('arrange');};
 $('zoomOut').onclick=()=>zoom(1.2,true);$('zoomIn').onclick=()=>zoom(1/1.2,true);$('fitBtn').onclick=()=>animateView(hoopView());
 $('fitDesignBtn').onclick=()=>{const visible=project.layers.filter(l=>l.visible!==false&&(!l.role||l.role==='artwork')),stitched=visible.filter(l=>l.type!=='image');const b=groupBounds(stitched.length?stitched:visible);if(!b)return;const size=clamp(Math.max(b.w,b.h)+12,25,240);animateView({x:b.x+(b.w-size)/2,y:b.y+(b.h-size)/2,w:size,h:size});};
-$('saveCopyBtn').onclick=async()=>{const button=$('saveCopyBtn');button.disabled=true;try{await saveProject(false,true);mutate(()=>{project.id=uid();project.name+=' copy';});await saveProject(false,true);$('projectsDialog').close();toast('A separate copy is saved in Studio.');}catch(e){toast(e.message);}finally{button.disabled=false;}};
+$('saveCopyBtn').onclick=async()=>{try{await switchProject(()=>({...copy(project),id:uid(),name:project.name+' copy'}),{persist:true});toast('A separate copy is saved in Studio.');}catch(e){toast(e.message);}};
 $('backupBtn').onclick=async()=>{try{const backup=await api('/api/backup',{project:copy(project)}),url=URL.createObjectURL(new Blob([JSON.stringify(backup,null,2)],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download=(project.name.replace(/[^a-z0-9_-]+/gi,'-')||'design')+'.project.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),60000);}catch(e){toast(e.message);}};
-$('newProjectBtn').onclick=async()=>{const button=$('newProjectBtn');button.disabled=true;try{const defaults=await api('/api/preferences');await saveProject(false,true);history=[];future=[];project=blankProject(defaults.defaults);selected.clear();changed();$('projectsDialog').close();setTab('layer');}catch(e){toast(e.message);}finally{button.disabled=false;}};
+$('newProjectBtn').onclick=async()=>{try{await switchProject(async()=>blankProject((await api('/api/preferences')).defaults),{resetHistory:true,nextTab:'layer'});}catch(e){toast(e.message);}};
 document.addEventListener('keydown',e=>{if(['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)||document.querySelector('dialog[open]'))return;if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();e.shiftKey?redo():undo();}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'){e.preventDefault();saveProject();}if(e.key==='Delete'||e.key==='Backspace'){e.preventDefault();deleteSelected();}if(e.key==='Escape'){selected.clear();setMode('select');renderAll();}});
 window.addEventListener('pagehide',()=>{if(dirty){try{localStorage.setItem('inkstudio-project-v1',JSON.stringify(project));}catch{}}});
 
@@ -665,10 +700,10 @@ const helpers=createHelpers({openMarkerDisplay:()=>commands.openMarkerDisplay(),
 const specialFills=createSpecialFills({getProject:()=>project,getRevision:()=>modelRevision,mutate,toast});
 const multisatin=createMultisatin({getProject:()=>project,getRevision:()=>modelRevision,mutate,toast,api});
 const threads=createThreads({getProject:()=>project,getRevision:()=>modelRevision,chosen,mutate,api,toast,editable,assets,select:ids=>selected=new Set(ids),setTab});
-const swatchTools=createSwatches({getProject:()=>project,getRevision:()=>modelRevision,chosen,mutate,api,toast,assets,select:ids=>selected=new Set(ids),setTab,createProject:async p=>{validateProject(p);const id=project.id,revision=modelRevision;await saveProject(false,true);if(project.id!==id||modelRevision!==revision)throw new Error('The design changed. Preview swatches again.');checkpoint();project=p;selected=new Set(p.layers.filter(l=>l.visible!==false).map(l=>l.id));changed();await hydrate();await saveProject(false,true);}});
-const batchTools=createBatches({api,toast,getProject:()=>project,openProject:async p=>{validateProject(p);const id=project.id,revision=modelRevision;await saveProject(false,true);if(project.id!==id||modelRevision!==revision)throw new Error('The design changed. Open the batch design again.');checkpoint();project=p;selected.clear();changed();await hydrate();await saveProject(false,true);setTab('digitize');}});
-const fontSamples=createFontSamples({api,toast,getProject:()=>project,openProject:async p=>{validateProject(p);const id=project.id,revision=modelRevision;await saveProject(false,true);if(project.id!==id||modelRevision!==revision)throw new Error('The design changed. Open the sheet again.');checkpoint();project=p;selected.clear();changed();await hydrate();await saveProject(false,true);setTab('digitize');}});
-const fontWorkspaces=createFontWorkspaces({api,toast,getProject:()=>project,getRevision:()=>modelRevision,mutate,assets,setTab,refreshFonts:async()=>{fonts=(await api('/api/fonts')).sort((a,b)=>a.name.localeCompare(b.name));},openLibrary:id=>fontLibrary.open(id),openProject:async p=>{validateProject(p);const id=project.id,revision=modelRevision;await saveProject(false,true);if(project.id!==id||modelRevision!==revision)throw new Error('The design changed. Open the glyph again.');checkpoint();project=p;selected.clear();changed();await hydrate();await saveProject(false,true);setTab('digitize');}});
+const swatchTools=createSwatches({getProject:()=>project,getRevision:()=>modelRevision,chosen,mutate,api,toast,assets,select:ids=>selected=new Set(ids),setTab,createProject:p=>switchProject(()=>p,{persist:true,selectAll:true})});
+const batchTools=createBatches({api,toast,getProject:()=>project,openProject:p=>switchProject(()=>p,{persist:true,nextTab:'digitize'})});
+const fontSamples=createFontSamples({api,toast,getProject:()=>project,openProject:p=>switchProject(()=>p,{persist:true,nextTab:'digitize'})});
+const fontWorkspaces=createFontWorkspaces({api,toast,getProject:()=>project,getRevision:()=>modelRevision,mutate,assets,setTab,refreshFonts:async()=>{fonts=(await api('/api/fonts')).sort((a,b)=>a.name.localeCompare(b.name));},openLibrary:id=>fontLibrary.open(id),openProject:p=>switchProject(()=>p,{persist:true,nextTab:'digitize'})});
 const fontLibrary=createFontLibrary({getFonts:()=>fonts,api,toast,sampleFont:id=>fontSamples.open(id),editFont:id=>fontWorkspaces.open(id),refreshFonts:async()=>{fonts=(await api('/api/fonts')).sort((a,b)=>a.name.localeCompare(b.name));if($('fontDialog').open)renderFontPicker();},useFont:id=>{if(!$('letterDialog').open)openLettering();$('fontSelect').value=id;updateFontInfo(true);if($('fontDialog').open)$('fontDialog').close();}});
 const ttfLettering=createTTFLettering({api,toast,getProject:()=>project,getRevision:()=>modelRevision,mutate,assets,select:ids=>selected=new Set(ids),setTab});
 function useOutlineLettering(){
